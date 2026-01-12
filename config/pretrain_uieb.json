@@ -1,0 +1,89 @@
+{
+  "phase": "train",
+  "name": "MAMBA_UIE_ENHANCED",
+  "gpu_ids": [0],
+  
+  "path": {
+    "log": "/content/drive/MyDrive/CLIP-UIE/logs",
+    "tb_logger": "/content/drive/MyDrive/CLIP-UIE/tb_logger",
+    "results": "/content/drive/MyDrive/CLIP-UIE/results",
+    "checkpoint": "/content/drive/MyDrive/CLIP-UIE/Checkpoint/diffusion_model_mamba",
+    "resume_state": null
+  },
+  
+  "datasets": {
+    "train": {
+      "name": "UIEB_train",
+      "mode": "LRHR",
+      "dataroot_HR": "/content/drive/MyDrive/CLIP-UIE/datasets/UIEB_processed_32_256/hr_256",
+      "dataroot_LR": "/content/drive/MyDrive/CLIP-UIE/datasets/UIEB_processed_32_256/lr_32",
+      "l_resolution": 32,
+      "r_resolution": 256,
+      "batch_size": 8,
+      "num_workers": 4,
+      "use_shuffle": true,
+      "data_len": -1
+    },
+    "val": {
+      "name": "UIEB_val",
+      "mode": "LRHR",
+      "dataroot_HR": "/content/drive/MyDrive/CLIP-UIE/datasets/UIEB_processed_32_256/hr_256",
+      "dataroot_LR": "/content/drive/MyDrive/CLIP-UIE/datasets/UIEB_processed_32_256/lr_32",
+      "l_resolution": 32,
+      "r_resolution": 256,
+      "data_len": 10
+    }
+  },
+  
+   "model": {
+    "which_model_G": "mamba_unet",
+    "finetune_norm": false,
+    
+    "unet": {
+      "in_channel": 6,
+      "out_channel": 3,
+      "inner_channel": 64,
+      "channel_mults": [1, 2, 4, 8],
+      "res_blocks": 2,
+      "dropout": 0.0,
+      "use_mamba": true
+    },
+    
+    "diffusion": {
+      "image_size": 256,
+      "channels": 3,
+      "conditional": true,
+      "beta_schedule": {
+        "train": {
+          "schedule": "cosine",
+          "n_timestep": 1000
+        }
+      },
+      "loss_type": "l1",
+      "sample_num": 8
+    },
+    
+    "use_perceptual": true,
+    "physical_guidance": true,
+    "edge_guidance": true,
+    "iqa_guidance": true,
+    "adaptive_lambda": false,
+    
+    "prompt": {
+      "learn_prompt_path": "/content/drive/MyDrive/CLIP-UIE/Checkpoint/prompt/iter_1000.pth"
+    }
+  },
+  
+  "train": {
+    "n_iter": 60000,
+    "val_freq": 1000,
+    "save_checkpoint_freq": 5000,
+    "print_freq": 100,
+    
+    "optimizer": {
+      "type": "adamw",
+      "lr": 2e-4,
+      "weight_decay": 1e-4
+    }
+  }
+}
